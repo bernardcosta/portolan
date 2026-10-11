@@ -1,0 +1,267 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Portolan hub API",
+    "version": "0.0.0",
+    "description": "Read-only view of the projects, docs and change feeds the hub holds."
+  },
+  "components": {
+    "schemas": {
+      "Health": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "projects": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ok",
+          "projects"
+        ]
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "spriggs"
+          },
+          "repo": {
+            "type": "string",
+            "example": "bernardcosta/portolan"
+          },
+          "owner": {
+            "type": "string",
+            "example": "platform"
+          },
+          "summary": {
+            "type": "string",
+            "example": "A CI docs harness."
+          },
+          "docs": {
+            "type": "integer",
+            "description": "Number of pages under docs/",
+            "example": 3
+          }
+        },
+        "required": [
+          "name",
+          "repo",
+          "owner",
+          "summary",
+          "docs"
+        ]
+      },
+      "NotFound": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "Change": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "YYYY-MM-DD",
+            "example": "2026-10-11"
+          },
+          "title": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "added",
+              "changed",
+              "fixed",
+              "removed",
+              "deprecated",
+              "internal"
+            ]
+          },
+          "breaking": {
+            "type": "boolean"
+          },
+          "pr": {
+            "type": "integer"
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "full",
+              "partial"
+            ]
+          }
+        },
+        "required": [
+          "date",
+          "title",
+          "kind",
+          "pr",
+          "coverage"
+        ]
+      }
+    },
+    "parameters": {}
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Liveness check",
+        "responses": {
+          "200": {
+            "description": "The service is up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects": {
+      "get": {
+        "summary": "List every project the hub knows",
+        "responses": {
+          "200": {
+            "description": "All projects, in registration order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{name}": {
+      "get": {
+        "summary": "One project by name",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "spriggs"
+            },
+            "required": true,
+            "name": "name",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No project with this name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFound"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/projects/{name}/changes": {
+      "get": {
+        "summary": "The change feed of one project, newest first",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "spriggs"
+            },
+            "required": true,
+            "name": "name",
+            "in": "path"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "added",
+                "changed",
+                "fixed",
+                "removed",
+                "deprecated",
+                "internal"
+              ]
+            },
+            "required": false,
+            "name": "kind",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false,
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Change entries, newest first",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Change"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No project with this name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotFound"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "webhooks": {}
+}
