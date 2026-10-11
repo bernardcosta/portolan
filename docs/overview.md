@@ -14,11 +14,13 @@ The repo is the source of truth. Each project keeps a `/docs` folder with a smal
 
 ## Status
 
-Early development. Spriggs is built first and runs on this repo's own pull requests. Portolan comes later.
+Early development. Spriggs is built first and runs on this repo's own pull requests. Portolan comes later. Its first piece, `hub-api`, is a read-only REST API that lists projects and their change feeds. For now it serves fixture data held in memory. See [the hub API guide](guides/hub-api.md).
 
 ## How to call it
 
 Local run: `bun run spriggs run --local --base <ref>`. In CI: the `spriggs.yml` workflow runs `bun run spriggs run` (the `portolan spriggs run` CLI) on each pull request. See [setup.md](setup.md).
+
+The hub API: `bun run dev` in `packages/hub-api`, then `GET http://localhost:8787/projects`. Its OpenAPI document is in `docs/api/openapi.json`.
 
 ## Owner
 

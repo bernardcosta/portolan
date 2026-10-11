@@ -19,6 +19,8 @@ covers:
   - packages/spriggs/src/report.ts
   - .github/workflows/spriggs.yml
   - .env.example
+  - package.json
+  - packages/hub-api/package.json
 ---
 
 # Setup
@@ -40,9 +42,13 @@ covers:
 | Command | Does |
 | --- | --- |
 | `bun run check` | Lint and format check |
-| `bun run typecheck` | Typecheck |
+| `bun run typecheck` | Typecheck `packages/spriggs` and `packages/hub-api` |
 | `bun run fix` | Apply Biome fixes |
 | `bun run spriggs run --local --base <ref>` | Run Spriggs on the working copy against `<ref>`, with no GitHub |
+| `bun run dev` (in `packages/hub-api`) | Start the hub API on port 8787 (or `PORT`), in watch mode |
+| `bun run openapi` (in `packages/hub-api`) | Write the hub API's OpenAPI document to `docs/api/openapi.json` |
+
+See [the hub API guide](guides/hub-api.md) for its routes.
 
 Full usage: `portolan spriggs run [--local --base <ref> [--reason <text>]] [--model <provider/model>]`.
 
@@ -126,7 +132,9 @@ If a request is still larger than the model's context window, the provider rejec
 
 ```
 packages/spriggs/   the harness and the `portolan` CLI
+packages/hub-api/   the hub's read-only REST API (fixture data for now)
 docs/               this repo's own docs, per the /docs contract
+docs/api/           generated OpenAPI document of hub-api; do not edit
 .github/workflows/  ci.yml (checks), spriggs.yml (the harness on pull requests)
 ```
 
